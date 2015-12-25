@@ -56,63 +56,64 @@ public class Main {
     /**
      * ***********************************************************************
      */
-    public static class SumSegmentTree {
+    public static abstract class SegmentTree {
 
-        private int[] values;
-        private int[] results;
+        private final int[] values;
+        private final int[] results;
 
-        public SumSegmentTree(int[] values) {
+        public SegmentTree(int[] values) {
             this.values = values;
-            results = new int[values.length * 2 - 1];
-            build(0, 0, values.length - 1);
+            results = new int[values.length * 2 + 1];
         }
 
-        public SumSegmentTree(int size) {
+        public SegmentTree(int size) {
             values = new int[size];
             results = new int[size * 2 + 1];
         }
 
-        private void build(int index, int left, int right) {
+        public final void updateResults() {
+            updateResult(0, 0, values.length - 1);
+        }
+
+        private void updateResult(int index, int left, int right) {
             if (left == right) {
                 results[index] = values[left];
             } else {
                 int mid = (left + right) / 2;
                 int leftIndex = index * 2 + 1;
                 int rightIndex = leftIndex + 1;
-                build(leftIndex, left, mid);
-                build(rightIndex, mid + 1, right);
+                updateResult(leftIndex, left, mid);
+                updateResult(rightIndex, mid + 1, right);
 
-                results[index] = results[leftIndex] + results[rightIndex];
+                results[index] = computation(results[leftIndex], results[rightIndex]);
             }
         }
 
-        public void update(int pos, int dif) {
-            if (pos <= values.length - 1 && pos >= 0) {
-                values[pos] += dif;
-                update(0, pos, dif, 0, values.length - 1);
-            }
+        public final void updateValue(int pos, int value) {
+            values[pos] = value;
         }
 
-        private void update(int index, int pos, int dif, int left, int right) {
-            results[index] += dif;
-            
-            if (left != right) {
+        public final int query(int left, int right) {
+            return query(left, right, 0, 0, values.length - 1);
+        }
+
+        private int query(int queryLeft, int queryRight, int index, int left, int right) {
+            if (queryLeft == left && queryRight == right) {
+                return results[index];
+            } else {
                 int mid = (left + right) / 2;
 
                 int leftIndex = index * 2 + 1;
                 int rightIndex = leftIndex + 1;
 
-                if (pos <= mid) {
-                    update(leftIndex, pos, dif, left, mid);
-                } else {
-                    update(rightIndex, pos, dif, mid + 1, right);
-                }
+                int leftQuery = query(queryLeft, mid, leftIndex, left, mid);
+                int rightQuery = query(mid + 1, queryRight, rightIndex, mid, right);
+
+                return computation(leftQuery, rightQuery);
             }
         }
 
-        public int query(int left, int right) {
-            return 0;
-        }
+        public abstract int computation(int arg0, int arg1);
 
         public void test() {
             System.out.println(Arrays.toString(values));
@@ -126,10 +127,12 @@ public class Main {
      * @param args
      */
     public static void main(String[] args) {
-        int[] a = {1, 2, 3, 4, 5};
-        SumSegmentTree st = new SumSegmentTree(a);
-        st.test();
-        st.update(0, -1);
+        SegmentTree st = new SegmentTree(3) {
+            @Override
+            public int computation(int arg0, int arg1) {
+                return arg0 + arg1;
+            }
+        };
         st.test();
     }
 }
