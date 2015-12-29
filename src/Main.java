@@ -124,12 +124,41 @@ public class Main {
 
         public abstract T outRangeValue();
     }
+    
+    /* Bit manipulating */
+    /**
+     * ***********************************************************************
+     */
+    
+    public static class BitManipulation {
+        public static int setBit(int i, int j) {
+            return i | (1 << j);
+        }
+        
+        public static boolean isOn(int i, int j) {
+             return (i & (1 << j)) != 0;
+        }
+        
+        public static int clearBit(int i, int j) {
+            return i & ~(1 << j);
+        }
+        
+        public static int toogleBit(int i, int j) {
+            return i ^ (1 << j);
+        }
+        
+        public static int lowBit(int i) {
+            return i & -i;
+        }
+    }
+    
         /* Test driver */
         /**
          * ***********************************************************************
          * @param args
          */
         public static void main(String[] args) {
+            System.out.println(BitManipulation.lowBit(6));
         }
     }
 
