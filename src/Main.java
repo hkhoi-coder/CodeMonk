@@ -52,23 +52,23 @@ public class Main {
         }
     }
 
-    /* Segment Tree */
+    /* Segment Tree - Generic version */
     /**
      * ***********************************************************************
      */
-    public static abstract class SegmentTree {
+    public static abstract class SegmentTree<T> {
 
-        private final int[] values;
-        private final int[] results;
+        private final T[] values;
+        private final T[] results;
 
-        public SegmentTree(int[] values) {
+        public SegmentTree(T[] values) {
             this.values = values;
-            results = new int[values.length * 2 + 1];
+            results = (T[]) new Object[values.length * 4];
         }
 
         public SegmentTree(int size) {
-            values = new int[size];
-            results = new int[size * 2 + 1];
+            values = (T[]) new Object[size];
+            results = (T[]) new Object[values.length * 4];
         }
 
         public final void updateResults() {
@@ -89,50 +89,47 @@ public class Main {
             }
         }
 
-        public final void updateValue(int pos, int value) {
+        public final void updateValue(int pos, T value) {
             values[pos] = value;
         }
 
-        public final int query(int left, int right) {
+        public final T query(int left, int right) {
             return query(left, right, 0, 0, values.length - 1);
         }
 
-        private int query(int queryLeft, int queryRight, int index, int left, int right) {
-            if (queryLeft == left && queryRight == right) {
-                return results[index];
+        private T query(int queryLeft, int queryRight, int index, int left, int right) {
+            if (left > queryRight || right < queryLeft) {
+                return outRangeValue(); // Current segment is out of query range;
+            } else if (left >= queryLeft && right <= queryRight) {
+                return results[index];  // Current segment is in query range;
             } else {
                 int mid = (left + right) / 2;
-
                 int leftIndex = index * 2 + 1;
                 int rightIndex = leftIndex + 1;
 
-                int leftQuery = query(queryLeft, mid, leftIndex, left, mid);
-                int rightQuery = query(mid + 1, queryRight, rightIndex, mid, right);
+                T leftResult = query(queryLeft, queryRight, leftIndex, left, mid);
+                T rightResult = query(queryLeft, queryRight, rightIndex, mid + 1, right);
 
-                return computation(leftQuery, rightQuery);
+                if (leftResult.equals(outRangeValue())) {
+                    return rightResult;
+                }
+                if (rightResult.equals(outRangeValue())) {
+                    return leftResult;
+                }
+                return computation(leftResult, rightResult);
             }
         }
 
-        public abstract int computation(int arg0, int arg1);
+        public abstract T computation(T arg0, T arg1);
 
-        public void test() {
-            System.out.println(Arrays.toString(values));
-            System.out.println(Arrays.toString(results));
+        public abstract T outRangeValue();
+    }
+        /* Test driver */
+        /**
+         * ***********************************************************************
+         * @param args
+         */
+        public static void main(String[] args) {
         }
     }
 
-    /* Test driver */
-    /**
-     * ***********************************************************************
-     * @param args
-     */
-    public static void main(String[] args) {
-        SegmentTree st = new SegmentTree(3) {
-            @Override
-            public int computation(int arg0, int arg1) {
-                return arg0 + arg1;
-            }
-        };
-        st.test();
-    }
-}
