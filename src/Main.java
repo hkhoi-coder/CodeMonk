@@ -124,41 +124,73 @@ public class Main {
 
         public abstract T outRangeValue();
     }
-    
+
     /* Bit manipulating */
     /**
      * ***********************************************************************
      */
-    
     public static class BitManipulation {
+
         public static int setBit(int i, int j) {
             return i | (1 << j);
         }
-        
+
         public static boolean isOn(int i, int j) {
-             return (i & (1 << j)) != 0;
+            return (i & (1 << j)) != 0;
         }
-        
+
         public static int clearBit(int i, int j) {
             return i & ~(1 << j);
         }
-        
+
         public static int toogleBit(int i, int j) {
             return i ^ (1 << j);
         }
-        
+
         public static int lowBit(int i) {
             return i & -i;
         }
     }
-    
-        /* Test driver */
-        /**
-         * ***********************************************************************
-         * @param args
-         */
-        public static void main(String[] args) {
-            System.out.println(BitManipulation.lowBit(6));
+
+    /* Fenwick Tree - BIT */
+    /**
+     * ***********************************************************************
+     */
+    public static class BIT {
+
+        private int[] bit;
+
+        public BIT(int size) {
+            bit = new int[size + 1];
+        }
+
+        public void update(int pos, int dif) {
+            ++pos;
+            ++dif;
+            for (; pos <= bit.length; pos += (pos & (-pos))) {
+                bit[pos] += dif;
+            }
+        }
+        
+        public int query(int pos) {
+            ++pos;
+            int sum = 0;
+            for (; pos > 0; pos -= (pos & (-pos))) {
+                sum += bit[pos];
+            }
+            return sum;
+        }
+
+        public int query(int from, int to) {
+            return query(to) - query(from - 1);
         }
     }
 
+    /* Test driver */
+    /**
+     * ***********************************************************************
+     * @param args
+     */
+    public static void main(String[] args) {
+    }
+}
